@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 0.4.0
+  version: 0.5.0
   title: Messages API
   description: "The Messages API enables you to send messages to customers via their preferred channels (currently Facebook Messenger, WhatsApp, Viber, and SMS/MMS) using a single API. The Messages API is currently in Beta."
   contact:
@@ -298,8 +298,17 @@ components:
                 - $ref: "#/components/schemas/fileMessageFacebook"
         - title: MMS
           x-tab-id: MMS
-          allOf:
-            - $ref: "#/components/schemas/mmsMessage"
+          oneOf:
+            - title: Image
+              x-tab-id: image
+              allOf:
+                - $ref: "#/components/schemas/mmsMessage"
+                - $ref: "#/components/schemas/imageMessageMms"
+            - title: VCard
+              x-tab-id: vcard
+              allOf:
+                - $ref: "#/components/schemas/mmsMessage"
+                - $ref: "#/components/schemas/vcardMessageMms"
     locationMessageWhatsApp:
       type: object
       required:        
@@ -346,6 +355,74 @@ components:
                       description: The address of the location, only displays if name is present
                       example: 1 Hacker Way, Menlo Park, CA 94025
 
+    imageMessageMms:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: object
+          required:
+            - content
+          properties:
+            content:
+              type: object
+              required:
+                - image
+                - type
+              properties:
+                type:
+                  type: string
+                  description: The type of message to be sent
+                  example: image
+                  enum:
+                    - image
+                image:
+                  type: object
+                  required:
+                    - url
+                  properties:
+                    url:
+                      type: string
+                      description: The URL of the image attachment. The image file is available for 48 hours after it is created. Supported file types are .jpg, .jpeg, .png, and .gif
+                      format: url
+                      example: "https://example.com/image.jpg"
+                    caption:
+                      type: string
+                      description: Additional text to accompany the image.
+                      example: My Tabby cat, Oliver.
+    vcardMessageMms:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: object
+          required:
+            - content
+          properties:
+            content:
+              type: object
+              required:
+                - vcard
+                - type
+              properties:
+                type:
+                  type: string
+                  description: The type of message to be sent
+                  example: vcard
+                  enum:
+                    - vcard
+                vcard:
+                  type: object
+                  required:
+                    - url
+                  properties:
+                    url:
+                      type: string
+                      description: The URL of the vcard attachment. The vcard file is available for 48 hours after it is created.
+                      format: url
+                      example: "https://example.com/my-vcard.vcf"
     mmsMessageCommon:
       type: object
       required:
@@ -385,33 +462,6 @@ components:
               type: string
               description: A US shortcode
               example: '12345'
-        message:
-          type: object
-          required:
-            - content
-          properties:
-            content:
-              type: object
-              required:
-                - image
-                - type
-              properties:
-                type:
-                  type: string
-                  description: The type of message to be sent
-                  example: image
-                  enum:
-                    - image
-                image:
-                  type: object
-                  required:
-                    - url
-                  properties:
-                    url:
-                      description: The URL of the image attachment. The image file is available for 48 hours after it is created. Supported file types are .jpg, .jpeg, .png, and .gif
-                      type: string
-                      format: url
-                      example: "https://example.com/image.jpg"
     mmsMessage:
       allOf:
         - $ref: "#/components/schemas/mmsMessageCommon"
