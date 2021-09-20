@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 1.0.1
+  version: 1.0.2
   title: Messages API
   description: 'The Messages API consolidates and normalises exchanges across all messaging channels. It allows you to use a single API to interact with our various channels such as SMS, MMS, WhatsApp, Viber and Facebook Messenger'
   contact:
@@ -555,13 +555,13 @@ components:
           x-tab-id: vCard
           type: object
           required:
-            - image
+            - vcard
           properties:
             message_type:
               type: string
               enum:
-                - image
-              example: image
+                - vcard
+              example: vcard
               description: The type of message to send. You must provide `vcard` in this field
             image:
               type: object
@@ -660,6 +660,7 @@ components:
             custom:
               type: object
               description: A custom payload, which is passed directly to WhatsApp for certain features such as templates and interactive messages
+              additionalProperties: true
 
     Reply:
       allOf:
@@ -667,6 +668,31 @@ components:
         - title: Reply
           x-tab-id: Reply
           type: object
+          properties:
+            message_type:
+              type: string
+              enum:
+                - reply
+              example: reply
+              description: The type of message to send. You must provide `custom` in this field.
+            reply:
+              required:
+                - id
+                - title
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: "row1"
+                  description: 'An identifier to help identify the exact interactive message response.'
+                title:
+                  type: string
+                  example: "9am"
+                  description: The title displayed on the interactive option chosen.
+                description:
+                  type: string
+                  example: "Select 9am appointmaent time"
+                  description: A description that may be added to the interactive options presented (available only on interactive lists).
     Text:
       allOf:
         - $ref: "#/components/schemas/baseMessageType"
