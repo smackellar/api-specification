@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 1.0.2
+  version: 1.0.3
   title: Messages API
   description: 'The Messages API consolidates and normalises exchanges across all messaging channels. It allows you to use a single API to interact with our various channels such as SMS, MMS, WhatsApp, Viber and Facebook Messenger'
   contact:
@@ -650,6 +650,8 @@ components:
         - title: Custom
           x-tab-id: Custom
           type: object
+          required:
+            - custom
           properties:
             message_type:
               type: string
@@ -668,6 +670,8 @@ components:
         - title: Reply
           x-tab-id: Reply
           type: object
+          required:
+            - reply
           properties:
             message_type:
               type: string
