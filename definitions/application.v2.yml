@@ -1,7 +1,7 @@
 ---
 openapi: "3.0.0"
 info:
-  version: 2.1.0
+  version: 2.1.1
   title: "Application API"
   description: |
     Vonage provides an Application API to allow management of your Vonage Applications.
@@ -231,6 +231,9 @@ paths:
                       description: "Messages and Dispatch application webhook config"
                       x-nexmo-developer-collection-description-shown: true
                       properties:
+                        version:
+                          type: string
+                          description: "If not populated will be set to v1"
                         webhooks:
                           type: object
                           properties:
