@@ -1,13 +1,13 @@
 openapi: "3.0.3"
 info:
-  version: 0.1.4
+  version: 0.1.5
   title: WhatsApp Provisioning  API
   description: | 
     The WhatsApp Manager API enables customers to deploy a WhatsApp cluster, perform One Time Password (OTP) verification, and update profile information 
   contact:
     name: Nexmo DevRel
     email: devrel@nexmo.com
-    url: 'https://developer.nexmo.com/'
+    url: 'https://developer.vonage.com/'
   x-label: Beta
 servers:
   - url: https://api.nexmo.com/v0.1/whatsapp-manager
@@ -233,7 +233,7 @@ paths:
                 $ref: "#/components/schemas/ErrorThrottled"
   /deployments/{deployment_id}/profile:
     get:
-      description: Get's business profile information
+      description: Gets business profile information
       tags:
         - Profile
       summary: Get Profile Info
@@ -309,7 +309,7 @@ paths:
 
   /deployments/{deployment_id}/profile/photo:
     get:
-      description: Get's business profile photo
+      description: Gets business profile photo
       tags:
         - Profile
       summary: Get Profile Photo
@@ -398,6 +398,295 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorUnprocessable"
+
+  /deployments/{deployment_id}/stickerpacks:
+    get:
+      description: Gets Third-Party Stickerpacks
+      tags:
+        - Stickerpacks
+      summary: Gets Third-Party Stickerpacks
+      operationId: getStickerpacks
+      parameters:
+        - $ref: "#/components/parameters/deployment_id"
+      responses:
+        '200':
+          description: Return list of available stickerpacks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StickerpacksResponse'
+        '401':
+          description: Invalid Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Deployment Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+
+    post:
+      description: Creates a Third-Party Sticketpack
+      tags:
+        - Stickerpacks
+      summary: Creates Third-party Stickerpacks
+      operationId: createStickerpacks
+      parameters:
+        - $ref: "#/components/parameters/deployment_id"
+      requestBody:
+        description: URL pointing to a .png or .jpg. Image must be minimum 192px. max 640px x 640px. max 5MB.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - publisher
+                - name
+              properties:
+                publisher:
+                  description: The name of the publisher of the third-party stickerpack.
+                  type: string
+                  example: your-publisher-name
+                name:
+                  description: The name of the stickerpack.
+                  type: string
+                  example: your-sticker-pack-name
+                ios_app_store_link:
+                  description: The link to the stickerpack in the Apple iOS App Store. The link follows the format https://itunes.apple.com/app/idXXXXXXXXX. To get your App Store link, refer to the instructions at https://stackoverflow.com/questions/4137426/get-itunes-link-for-app-before-submitting
+                  type: string
+                  example: https://itunes.apple.com/app/id3133333
+                android_app_store_link:
+                  description: The link to the stickerpack in the Google Play store. The link follows the format https://play.google.com/store/apps/details?id=com.example where com.example is your app's package name.
+                  type: string
+                  example: https://play.google.com/store/apps/details?id=com.example
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StickerpacksResponse'
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorInvalidJson"
+        '401':
+          description: Invalid Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Deployment Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+
+  /deployments/{deployment_id}/stickerpacks?namespace=whatsapp:
+    get:
+      description: Gets First-Party (WhatsApp) Stickerpacks
+      tags:
+        - Stickerpacks
+      summary: Gets First-Party Stickerpacks
+      operationId: getWhatsappStickerpacks
+      parameters:
+        - $ref: "#/components/parameters/deployment_id"
+      responses:
+        '200':
+          description: Return list of available stickerpacks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StickerpacksResponse'
+        '401':
+          description: Invalid Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Deployment Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+
+  /deployments/{deployment_id}/stickerpacks/{stickerpack_id}:
+    get:
+      description: Gets a specific stickerpack
+      tags:
+        - Stickerpacks
+      summary: Gets a specific stickerpack
+      operationId: getStickerpacksById
+      parameters:
+        - $ref: "#/components/parameters/deployment_id"
+        - $ref: "#/components/parameters/stickerpack_id"
+      responses:
+        '200':
+          description: Return list of available stickerpacks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StickerpackResponse'
+        '401':
+          description: Invalid Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Deployment Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+
+
+  /deployments/{deployment_id}/stickerpacks/{stickerpack_id}/stickers:
+    get:
+      description: Retrieve stickers from a stickerpack
+      tags:
+        - Stickers
+      summary: Gets Third-Party Stickers
+      operationId: getStickers
+      parameters:
+        - $ref: "#/components/parameters/deployment_id"
+        - $ref: "#/components/parameters/stickerpack_id"
+      responses:
+        '200':
+          description: Return list of available stickers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StickersResponse'
+        '401':
+          description: Invalid Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Deployment Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+    post:
+      description: Create Third-Party Stickers
+      tags:
+        - Stickers
+      summary:  Create Third-Party Stickers
+      operationId: createStickers
+      parameters:
+        - $ref: "#/components/parameters/deployment_id"
+        - $ref: "#/components/parameters/stickerpack_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - image_data_id
+              properties:
+                image_data_id:
+                  description: The ID for the sticker media.
+                  type: string
+                  example: "id"
+                emojis:
+                  description: An array of the emojis included in the stickerpack.
+                  type: array
+                  example:
+                    - "🐥"
+                    - "😃"
+      responses:
+        '200':
+          description: Return an index of the sitcker
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StickersResponse'
+        '401':
+          description: Invalid Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Deployment Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+
+
+  /deployments/{deployment_id}/stickerpacks/{stickerpack_id}/stickers/{sticker_index}:
+    get:
+      description: Gets Third-Party Sticker
+      tags:
+        - Stickers
+      summary: Gets Third-Party Sticker
+      operationId: getStickerByIndex
+      parameters:
+        - $ref: "#/components/parameters/deployment_id"
+        - $ref: "#/components/parameters/stickerpack_id"
+        - $ref: "#/components/parameters/sticker_index"
+      responses:
+        '200':
+          description: Returns a sticker
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StickerIndexsResponse'
+        '401':
+          description: Invalid Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Deployment Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
+
+    delete:
+      description: Delete Third-Party Sticker
+      tags:
+        - Stickers
+      summary: Delete Third-Party Sticker
+      operationId:  deleteStickerByIndex
+      parameters:
+        - $ref: "#/components/parameters/deployment_id"
+        - $ref: "#/components/parameters/stickerpack_id"
+        - $ref: "#/components/parameters/sticker_index"
+      responses:
+        '200':
+          description: Creates a sticker
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StickerIndexsResponse'
+        '401':
+          description: Invalid Credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorUnauthorized"
+        '404':
+          description: Deployment Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorNotFound"
 components:
   securitySchemes:
     bearerAuth:
@@ -416,6 +705,23 @@ components:
       schema:
         type: string
       description: The deployment ID
+    stickerpack_id:
+      in: path
+      name: stickerpack_id
+      example: stickerpack-id
+      required: true
+      schema:
+        type: string
+      description: The stickerpack ID
+    sticker_index:
+      in: path
+      name: sticker_index
+      example: sticker-index
+      required: true
+      schema:
+        type: string
+      description: The sticker index
+
   schemas:
     ErrorThrottled:
       type: object
@@ -428,7 +734,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/whatsapp-provisioning#throttled
+          example: https://developer.vonage.com/api-errors/whatsapp-provisioning#throttled
         title:
           type: string
           description: Generic error message
@@ -452,7 +758,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/whatsapp-provisioning#conflict-resend-otp
+          example: https://developer.vonage.com/api-errors/whatsapp-provisioning#conflict-resend-otp
         title:
           type: string
           description: Generic error message
@@ -476,7 +782,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/whatsapp-provisioning#verification-failed
+          example: https://developer.vonage.com/api-errors/whatsapp-provisioning#verification-failed
         title:
           type: string
           description: Generic error message
@@ -514,7 +820,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/whatsapp-provisioning#unprocessable
+          example: https://developer.vonage.com/api-errors/whatsapp-provisioning#unprocessable
         title:
           type: string
           description: Generic error message
@@ -551,7 +857,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/whatsapp-provisioning#unprocessable-profile-update
+          example: https://developer.vonage.com/api-errors/whatsapp-provisioning#unprocessable-profile-update
         title:
           type: string
           description: Generic error message
@@ -588,7 +894,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/whatsapp-provisioning#conflict-deployment-state
+          example: https://developer.vonage.com/api-errors/whatsapp-provisioning#conflict-deployment-state
         title:
           type: string
           description: Generic error message
@@ -612,7 +918,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors#not-found
+          example: https://developer.vonage.com/api-errors#not-found
         title:
           type: string
           description: Generic error message
@@ -636,7 +942,7 @@ components:
         type:
           type: string
           description: Machine readable error type
-          example: https://developer.nexmo.com/api-errors#unauthorized
+          example: https://developer.vonage.com/api-errors#unauthorized
         title:
           type: string
           description: Error title
@@ -661,7 +967,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/whatsapp-provisioning#number-in-use
+          example: https://developer.vonage.com/api-errors/whatsapp-provisioning#number-in-use
         title:
           type: string
           description: Generic error message
@@ -686,7 +992,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors#forbidden
+          example: https://developer.vonage.com/api-errors#forbidden
         title:
           type: string
           description: Generic error message
@@ -711,7 +1017,7 @@ components:
         type:
           type: string
           description: Link to error / remediation options
-          example: https://developer.nexmo.com/api-errors/whatsapp-provisioning#invalid-json
+          example: https://developer.vonage.com/api-errors/whatsapp-provisioning#invalid-json
         title:
           type: string
           description: Generic error message
@@ -892,6 +1198,73 @@ components:
           enum:
             - sms
             - voice
+
+    StickerpacksResponse:
+      type: object
+      properties:
+        stickerpacks:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: sticker-pack-id1
+
+    StickerpackResponse:
+      type: object
+      properties:
+        stickerpacks:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: sticker-pack-name
+              publisher:
+                type: string
+                example: sticker-pack-publisher
+              android_app_store_link:
+                type: string
+                example: https://play.google.com/store/apps/details?id=com.example
+              ios_app_store_link:
+                type: string
+                example: https://itunes.apple.com/app/id3133333
+
+    StickersResponse:
+      type: object
+      properties:
+        stickers:
+          type: array
+          items:
+            type: object
+            properties:
+              index:
+                type: string
+                example: sticker-index1
+
+    StickerIndexsResponse:
+      type: object
+      properties:
+        stickers:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: sticker-media-id
+              image_data_id:
+                type: string
+                example: sticker-image-media-id
+              emojis:
+                type: array
+                items:
+                  example:
+                    - "🐥"
+                    - "😃"
+
 security:
   - bearerAuth: []
 tags:
@@ -901,6 +1274,10 @@ tags:
     description: Verify or resend a One Time Password (OTP)
   - name: Profile
     description: Update WhatsApp profile
+  - name: Stickerpacks
+    description: Stickerpack Management
+  - name: Stickers
+    description: Sticker Management
 x-errors:
   number-in-use:
     description: Cannot use number because it's already in use by another deployment.
