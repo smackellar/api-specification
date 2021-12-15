@@ -4,7 +4,7 @@ servers:
   - url: "https://api.nexmo.com/ni"
 info:
   title: Number Insight API
-  version: 1.1.2
+  version: 1.2.0
   description: >-
     The Number Insight API delivers real-time intelligence about the validity, reachability and roaming status of a phone number and tells you how to format the number correctly in your application. There are three levels of Number Insight API available: [Basic, Standard and Advanced](https://developer.nexmo.com/number-insight/overview#basic-standard-and-advanced-apis). The advanced API is available asynchronously as well as synchronously.
   contact:
@@ -98,41 +98,24 @@ paths:
             text/xml:
               schema:
                 $ref: "#/components/schemas/niResponseAsync"
-      callbacks:
-        onData:
-          "{$request.query.callback}":
-            post:
-              operationId: asyncCallback
-              summary: Asynchronous response
-              description: Contains the response to your Number Insight Advanced API request.
-              requestBody:
-                content:
-                  application/json:
-                    schema:
-                      $ref: "#/components/schemas/niResponseJsonAdvanced"
-                  text/xml:
-                    schema:
-                      $ref: "#/components/schemas/niResponseXmlAdvanced"
-              responses:
-                "200":
-                  description: OK
-        onDataUnknownRoaming:
-          "{$request.query.callback}":
-            post:
-              operationId: asyncCallbackRoamingUnknown
-              summary: Asynchronous response with Unknown Roaming
-              description: Contains the response to your Number Insight Advanced API request.
-              requestBody:
-                content:
-                  application/json:
-                    schema:
-                      $ref: "#/components/schemas/niResponseJsonAdvancedRoamingUnknown"
-                  text/xml:
-                    schema:
-                      $ref: "#/components/schemas/niResponseXmlAdvanced"
-              responses:
-                "200":
-                  description: OK
+      # callbacks:
+      #   onDataUnknownRoaming:
+      #     "{$request.query.callback}":
+      #       post:
+      #         operationId: asyncCallbackRoamingUnknown
+      #         summary: Asynchronous response with Unknown Roaming
+      #         description: Contains the response to your Number Insight Advanced API request.
+      #         requestBody:
+      #           content:
+      #             application/json:
+      #               schema:
+      #                 $ref: "#/components/schemas/niResponseJsonAdvancedRoamingUnknown"
+      #             text/xml:
+      #               schema:
+      #                 $ref: "#/components/schemas/niResponseXmlAdvanced"
+      #         responses:
+      #           "200":
+      #             description: OK
   "/advanced/{format}":
     parameters:
       - $ref: "#/components/parameters/format"
@@ -146,6 +129,7 @@ paths:
 
         Note that this endpoint also supports `POST` requests.
       parameters:
+        - $ref: '#/components/parameters/real_time_data'
         - $ref: "#/components/parameters/number"
         - $ref: "#/components/parameters/country"
         - $ref: "#/components/parameters/cnam"
@@ -157,11 +141,45 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/niResponseJsonAdvanced"
+                  - $ref: "#/components/schemas/niResponseJsonAdvancedSync"
                   - $ref: "#/components/schemas/niResponseJsonAdvancedRoamingUnknown"
             text/xml:
               schema:
                 $ref: "#/components/schemas/niResponseXmlAdvanced"
+x-webhooks:
+  asyncResponse:
+    "{$request.query.callback}":
+      post:
+        summary: 'Asynchronous response'
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/niResponseJsonAdvancedAsync"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/niResponseXmlAdvanced"
+        responses:
+          "200":
+            description: OK
+  asyncResponseUnknownRoaming:
+    "{$request.query.callback}":
+      post:
+        operationId: asyncCallbackRoamingUnknown
+        summary: Asynchronous response with Unknown Roaming
+        description: Contains the response to your Number Insight Advanced API request.
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/niResponseJsonAdvancedRoamingUnknown"
+            text/xml:
+              schema:
+                $ref: "#/components/schemas/niResponseXmlAdvanced"
+        responses:
+          "200":
+            description: OK
+
 components:
   parameters:
     format:
@@ -175,6 +193,14 @@ components:
         enum:
           - "json"
           - "xml"
+    real_time_data:
+      name: real_time_data
+      in: query
+      description: "A boolean to choose whether to get real time data back in the response."
+      example: "true"
+      required: false
+      schema:
+        type: boolean
     number:
       name: number
       in: query
@@ -219,6 +245,18 @@ components:
         format: uriref
 
   schemas:
+    niAsyncResponse:
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        tag:
+          type: string
     niResponseAsync:
       type: object
       xml:
@@ -846,8 +884,136 @@ components:
               example: "consumer"
 
 
-    niResponseJsonAdvanced:
-      description: "Advanced Response"
+    niResponseJsonAdvancedSync:
+      description: "Advanced Response (sync)"
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/niStandardAdvancedStatus"
+        status_message:
+          type: string
+          description: "The status description of your request."
+          example: "Success"
+        request_id:
+          type: string
+          description: "The unique identifier for your request. This is a alphanumeric string up to 40 characters."
+          example: "aaaaaaaa-bbbb-cccc-dddd-0123456789ab"
+          maxLength: 40
+        international_format_number:
+          type: string
+          description: "The `number` in your request in international format."
+          example: "447700900000"
+        national_format_number:
+          type: string
+          description: "The `number` in your request in the format used by the country the number belongs to."
+          example: "07700 900000"
+        country_code:
+          type: string
+          description: "Two character country code for `number`. This is in [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format."
+          example: "GB"
+          pattern: "[A-Z]{2}"
+        country_code_iso3:
+          type: string
+          description: "Three character country code for `number`. This is in [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) format."
+          example: "GBR"
+          pattern: "[A-Z]{3}"
+        country_name:
+          type: string
+          description: "The full name of the country that `number` is registered in."
+          example: "United Kingdom"
+        country_prefix:
+          type: string
+          description: "The numeric prefix for the country that `number` is registered in."
+          example: "44"
+        request_price:
+          type: string
+          description: "The amount in EUR charged to your account."
+          example: "0.04000000"
+        refund_price:
+          type: string
+          description: "If there is an internal lookup error, the `refund_price` will reflect the lookup price. If `cnam` is requested for a non-US number the `refund_price` will reflect the `cnam` price. If both of these conditions occur, `refund_price` is the sum of the lookup price and `cnam` price."
+          example: "0.01500000"
+        remaining_balance:
+          type: string
+          description: "Your account balance in EUR after this request."
+          example: "1.23456789"
+        current_carrier:
+          $ref: "#/components/schemas/niCurrentCarrierProperties"
+        original_carrier:
+          $ref: "#/components/schemas/niInitialCarrierProperties"
+        ported:
+          nullable: true
+          type: string
+          description: "If the user has changed carrier for `number`. The assumed status means that the information supplier has replied to the request but has not said explicitly that the number is ported."
+          enum:
+            - unknown
+            - ported
+            - not_ported
+            - assumed_not_ported
+            - assumed_ported
+            - "null"
+          example: "not_ported"
+        roaming:
+          $ref: "#/components/schemas/niRoaming"
+        caller_identity:
+          $ref: "#/components/schemas/niCallerIdentity"
+        lookup_outcome:
+          type: integer
+          description: |
+            Shows if all information about a phone number has been returned. Possible values:
+
+            Code | Text
+            --- | ---
+            0 | Success
+            1 | Partial success - some fields populated
+            2 | Failed
+          enum:
+            - 0
+            - 1
+            - 2
+          example: 0
+        lookup_outcome_message:
+          type: string
+          description: "Shows if all information about a phone number has been returned."
+          example: "Success"
+        valid_number:
+          type: string
+          description: "Does `number` exist. `unknown` means the number could not be validated. `valid` means the number is valid. `not_valid` means the number is not valid. `inferred_not_valid` means that the number could not be determined as valid or invalid via an external system and the best guess is that the number is invalid. This is applicable to mobile numbers only."
+          enum:
+            - unknown
+            - valid
+            - not_valid
+            - inferred
+            - inferred_not_valid
+          example: "valid"
+        reachable:
+          type: string
+          nullable: true
+          description: "Can you call `number` now. This is applicable to mobile numbers only."
+          enum:
+            - unknown
+            - reachable
+            - undeliverable
+            - absent
+            - bad_number
+            - blacklisted
+            - "null"
+          example: "reachable"
+        real_time_data:
+          $ref: "#/components/schemas/niRealtimeData"
+      required:
+        - status
+        - status_message
+        - request_id
+        - international_format_number
+        - national_format_number
+        - country_code
+        - country_code_iso3
+        - country_name
+        - country_prefix
+
+    niResponseJsonAdvancedAsync:
+      description: "Advanced Response (Async)"
       type: object
       properties:
         status:
@@ -1257,6 +1423,20 @@ components:
           example: "Acme Inc"
           xml:
             attribute: true
+
+    niRealtimeData:
+      type: object
+      nullable: true
+      description: "Real time data about the `number`"
+      properties:
+        active_status:
+          type: boolean
+          description: "Whether the end-user's phone number is active within an operator's `network`."
+          example: "true"
+        handset_status:
+          type: string
+          description: "Whether the end-user's handset is turned on or off."
+          example: "On"
 
     niCallerIdentity:
       type: object
