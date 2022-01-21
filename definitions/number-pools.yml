@@ -1,7 +1,7 @@
 openapi: 3.0.0
 
 info:
-  version: 2.0.0
+  version: 2.0.1
   title: Number Pools
   contact:
     name: Nexmo
@@ -16,7 +16,7 @@ security:
   - basicAuth: []
 
 paths:
-  /v2/pools/{account_id}:
+  /v2/numberpools/accounts/{account_id}/pools:
     parameters:
       - $ref: '#/components/parameters/AccountId'
 
@@ -66,7 +66,7 @@ paths:
         '409':
           $ref: '#/components/responses/ErrorPoolIdAlreadyExistsResponse'
 
-  /v2/pools/{account_id}/{pool_id}:
+  /v2/numberpools/accounts/{account_id}/{pool_id}:
     parameters:
       - $ref: '#/components/parameters/AccountId'
       - $ref: '#/components/parameters/PoolId'
@@ -114,7 +114,7 @@ paths:
         '409':
           $ref: '#/components/responses/ErrorAccountIdMismatchResponse'
 
-  /v2/pools/{account_id}/{pool_id}/numbers:
+  /v2/numberpools/accounts/{account_id}/pools/{pool_id}/numbers:
     parameters:
       - $ref: '#/components/parameters/AccountId'
       - $ref: '#/components/parameters/PoolId'
@@ -170,7 +170,7 @@ paths:
         '404':
           $ref: "common/common_errors.yml#/components/responses/NotFoundError"
 
-  /v2/pools/{account_id}/{pool_id}/numbers/delete:
+  /v2/numberpools/accounts/{account_id}/pools/{pool_id}/numbers/delete:
     parameters:
       - $ref: '#/components/parameters/AccountId'
       - $ref: '#/components/parameters/PoolId'
@@ -210,7 +210,7 @@ paths:
         '404':
           $ref: "common/common_errors.yml#/components/responses/NotFoundError"
   
-  /v2/pools/{account_id}/{pool_id}/numbers/{number}:
+  /v2/numberpools/accounts/{account_id}/pools/{pool_id}/numbers/{number}:
     parameters:
       - $ref: '#/components/parameters/AccountId'
       - $ref: '#/components/parameters/PoolId'
@@ -259,7 +259,7 @@ components:
                       href:
                         type: string
                         description: Link back to the number pool
-                        example: /v2/pools/abcd123/custom_user_pool_id/numbers
+                        example: /v2/numberpools/abcd123/custom_user_pool_id/numbers
 
     AddNumberPartialResponse:
       description: Only part of a number list was added to a pool
@@ -481,35 +481,35 @@ components:
                           href:
                             type: string
                             description: Link to the current page
-                            example: /v2/pools/abcd123/pool_id/numbers?page=3
+                            example: /v2/numberpools/abcd123/pool_id/numbers?page=3
                       next:
                         type: object
                         properties:
                           href:
                             type: string
                             description: Link to the next available page
-                            example: /v2/pools/abcd123/pool_id/numbers?page=4
+                            example: /v2/numberpools/abcd123/pool_id/numbers?page=4
                       previous:
                         type: object
                         properties:
                           href:
                             type: string
                             description: Link to the previous available page
-                            example: /v2/pools/abcd123/pool_id/numbers?page=2
+                            example: /v2/numberpools/abcd123/pool_id/numbers?page=2
                       first:
                         type: object
                         properties:
                           href:
                             type: string
                             description: Link to the first available page
-                            example: /v2/pools/abcd123/pool_id/numbers?page=1
+                            example: /v2/numberpools/abcd123/pool_id/numbers?page=1
                       last:
                         type: object
                         properties:
                           href:
                             type: string
                             description: Link to the last available page
-                            example: /v2/pools/abcd123/pool_id/numbers?page=10
+                            example: /v2/numberpools/abcd123/pool_id/numbers?page=10
 
     ListPoolsResponse:
       description: List of pools that are available
@@ -536,35 +536,35 @@ components:
                           href:
                             type: string
                             description: Link to the current page
-                            example: /v2/pools?page=3
+                            example: /v2/numberpools?page=3
                       next:
                         type: object
                         properties:
                           href:
                             type: string
                             description: Link to the next available page
-                            example: /v2/pools?page=4
+                            example: /v2/numberpools?page=4
                       previous:
                         type: object
                         properties:
                           href:
                             type: string
                             description: Link to the previous available page
-                            example: /v2/pools?page=2
+                            example: /v2/numberpools?page=2
                       first:
                         type: object
                         properties:
                           href:
                             type: string
                             description: Link to the first available page
-                            example: /v2/pools?page=1
+                            example: /v2/numberpools?page=1
                       last:
                         type: object
                         properties:
                           href:
                             type: string
                             description: Link to the last available page
-                            example: /v2/pools?page=10
+                            example: /v2/numberpools?page=10
 
   schemas:
   
@@ -917,14 +917,14 @@ components:
                 href:
                   type: string
                   description: Link to the current pool
-                  example: /v2/pools/abcd123/custom_user_pool_id
+                  example: /v2/numberpools/abcd123/custom_user_pool_id
             numbers:
               type: object
               properties:
                 href:
                   type: string
                   description: Link to the numbers in the pool
-                  example: /v2/pools/abcd123/custom_user_pool_id/numbers
+                  example: /v2/numberpools/abcd123/custom_user_pool_id/numbers
 
     PoolId:
       description: ID assigned to a pool of numbers
