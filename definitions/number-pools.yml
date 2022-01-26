@@ -1,7 +1,7 @@
 openapi: 3.0.0
 
 info:
-  version: 2.0.1
+  version: 2.0.2
   title: Number Pools
   contact:
     name: Nexmo
@@ -973,7 +973,7 @@ components:
     AccountId:
       name: account_id
       in: path
-      description: Account ID to filter to
+      description: Account ID to filter to. Use your Vonage API key as the value. You can see your API Key on your [Vonage API Dashboard](https://dashboard.nexmo.com/).
       required: true
       schema:
         $ref: '#/components/schemas/AccountId'
