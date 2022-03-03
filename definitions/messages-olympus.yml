@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 1.0.5
+  version: 1.1.0
   title: Messages API
   description: 'The Messages API consolidates and normalises exchanges across all messaging channels. It allows you to use a single API to interact with our various channels such as SMS, MMS, WhatsApp, Viber and Facebook Messenger'
   contact:
@@ -74,12 +74,62 @@ paths:
 
                                   Supports `.vcf` only.
                                 example: 'https://example.com/contact.vcf'
+                      - $ref: '#/components/schemas/channelOptionsMms'
+                    - allOf:
+                      - $ref: '#/components/schemas/Audio'
+                      - properties:
+                          message_type:
+                            type: string
+                            enum:
+                              - audio
+                            example: audio
+                            description: |
+                              The type of message to send. You must provide `audio` in this field.
+
+                              For best device and network support .mp3 is recommended. Not supported for US short codes.
+                          audio:
+                            required:
+                              - url
+                            properties:
+                              url:
+                                type: string
+                                description: |
+                                  The URL of the audio attachment.
+                                example: 'https://example.com/audio.mp3'
                               caption:
                                 type: string
-                                description: 'Additional text to accompany the vCard.'
+                                description: 'Additional text to accompany the audio file.'
                                 minLength: 1
                                 maxLength: 2000
-                                example: 'Additional text to accompany the image.'
+                                example: 'Additional text to accompany the audio file.'
+                      - $ref: '#/components/schemas/channelOptionsMms'
+                    - allOf:
+                      - $ref: '#/components/schemas/Video'
+                      - properties:
+                          message_type:
+                            type: string
+                            enum:
+                              - video
+                            example: video
+                            description: |
+                              The type of message to send. You must provide `video` in this field.
+
+                              For best device and network support .mp4 is recommended. Not supported for US short codes.
+                          video:
+                            required:
+                              - url
+                            properties:
+                              url:
+                                type: string
+                                description: |
+                                  The URL of the video attachment.
+                                example: 'https://example.com/video.mp4'
+                              caption:
+                                type: string
+                                description: 'Additional text to accompany the video file.'
+                                minLength: 1
+                                maxLength: 2000
+                                example: 'Additional text to accompany the video file.'
                       - $ref: '#/components/schemas/channelOptionsMms'
                 - title: WhatsApp
                   x-tab-id: WhatsApp
@@ -124,6 +174,8 @@ paths:
                                   The URL of the audio attachment.
 
                                   Supports `.aac`, `.m4a`, `.amr`, `.mp3` and `.opus`.
+                                minLength: 10
+                                maxLength: 2000
                       - $ref: '#/components/schemas/channelOptionsWhatsapp'
                     - allOf:
                       - $ref: '#/components/schemas/Video'
@@ -222,6 +274,8 @@ paths:
                                     The URL of the audio attachment.
 
                                     Only supports `.mp3` files
+                                minLength: 10
+                                maxLength: 2000
                       - $ref: '#/components/schemas/channelOptionsMessenger'
                     - allOf:
                       - $ref: '#/components/schemas/Video'
@@ -399,6 +453,30 @@ x-webhooks:
                       - allOf:
                         - $ref: '#/components/schemas/inboundMessageMMS'
                         - $ref: '#/components/schemas/vCard'
+                      - allOf:
+                        - $ref: '#/components/schemas/inboundMessageMMS'
+                        - $ref: '#/components/schemas/Audio'
+                        - properties:
+                            audio:
+                              required:
+                                - url
+                              properties:
+                                url:
+                                  type: string
+                                  description: Publicly accessible URL of the audio attachment.
+                                  minLength: 10
+                                  maxLength: 2000
+                      - allOf:
+                        - $ref: '#/components/schemas/inboundMessageMMS'
+                        - $ref: '#/components/schemas/Video'
+                        - properties:
+                            video:
+                              required:
+                                - url
+                              properties:
+                                url:
+                                  type: string
+                                  description: Publicly accessible URL of the video attachment.
                   - title: WhatsApp
                     x-tab-id: WhatsApp
                     oneOf:
@@ -417,6 +495,14 @@ x-webhooks:
                       - allOf:
                         - $ref: "#/components/schemas/inboundWhatsAppMessageCommon"
                         - $ref: "#/components/schemas/Audio"
+                        - properties:
+                            audio:
+                              required:
+                                - url
+                              properties:
+                                url:
+                                  minLength: 10
+                                  maxLength: 2000
                       - allOf:
                         - $ref: "#/components/schemas/inboundWhatsAppMessageCommon"
                         - $ref: "#/components/schemas/Reply"
@@ -441,6 +527,14 @@ x-webhooks:
                       - allOf:
                         - $ref: '#/components/schemas/InboundMessengerMessageCommon'
                         - $ref: "#/components/schemas/Audio"
+                        - properties:
+                            audio:
+                              required:
+                                - url
+                              properties:
+                                url:
+                                  minLength: 10
+                                  maxLength: 2000
                       - allOf:
                         - $ref: '#/components/schemas/InboundMessengerMessageCommon'
                         - $ref: "#/components/schemas/Unsupported"
@@ -517,8 +611,7 @@ components:
               properties:
                 url:
                   type: string
-                  minLength: 10
-                  maxLength: 2000
+                  format: url
                   example: 'https://example.com/audio.mp3'
 
     Video:
@@ -1516,7 +1609,7 @@ components:
           enum:
             - mms
           description: The channel the message came in on
-          example: mm
+          example: mms
         message_uuid:
           $ref: "#/components/schemas/MessageUuid"
         to:
